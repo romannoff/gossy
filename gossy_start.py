@@ -160,6 +160,12 @@ class App:
 
         # Сбрасываем состояние флага отмены
         self.cancel_flag.clear()
+        self.steps = {
+            'citilink_query': '',
+            'citilink_url': '',
+            'goszakupki_query': '',
+            'goszakupki_url': '',
+        }
 
     def main_button_command(self, event=None):
         """
@@ -181,19 +187,25 @@ class App:
                 if self.steps['citilink_query'] != search_input:
                     self.clear_button_command()
                     self.start_citilink_search(search_input)
-                elif self.steps['citilink_url'] != (url := self.frames['result_frame'].url_value.get()):
+                elif self.frames['result_frame'] is not None \
+                        and self.steps['citilink_url'] != (url := self.frames['result_frame'].url_value.get()):
                     self.clear_button_command()
                     self.start_citilink_parsing(url)
-                elif self.steps['goszakupki_url'] != (url := self.frames['goszakupki_frame'].url_value.get()):
+                elif self.frames['goszakupki_frame'] is not None \
+                        and self.steps['goszakupki_url'] != (url := self.frames['goszakupki_frame'].url_value.get()):
                     self.gu_buttons_deactivate = True
                     self.clear_button_command(idx=2)
                     self.start_goszakupki_parsing(url)
+                else:
+                    self.main_button.configure(text="Поиск")
 
         # Нажата кнопка с текстом "Остановить"
         if current_text == 'Остановить':
             self.main_button.configure(text="...")
             self.current_text = "Остановка. . ."
             self.cancel_flag.set()
+            if not self.in_work:
+                self.main_button.configure(text="Поиск")
 
     def start_citilink_search(self, search_name):
         """
